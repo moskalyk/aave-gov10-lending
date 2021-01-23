@@ -23,8 +23,10 @@ contract CreditExecutor {
 
     constructor () public {
         owner = msg.sender;
+        // pass in nft address
     }
 
+    // for testing purposes
     function setGreeting(string memory _greeting) public {
         greet = _greeting;
     }
