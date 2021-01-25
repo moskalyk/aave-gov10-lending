@@ -18,7 +18,7 @@
     "@uniswap/v2-periphery": "^1.1.0-beta.0"
   },
   "scripts": {
-    "deploy": "npx hardhat run --network kovan ./scripts/deploy.js",
-    "test": "npx hardhat test --network kovan"
+    "deploy:kovan": "npx hardhat run --network kovan ./scripts/deploy.js",
+    "test:kovan": "npx hardhat test --network kovan"
   }
 }

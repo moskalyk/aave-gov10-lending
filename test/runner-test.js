@@ -1,21 +1,6 @@
 const { expect } = require("chai");
-
 const { parseUnits, formatUnits } = require("@ethersproject/units");
 
-// describe("CreditExecutor", function() {
-//   it("Should return the new greeting once it's changed", async function() {
-
-//   	const [owner] = await ethers.getSigners();
-//   	console.log(owner.address)
-//   	const CreditExecutor = await ethers.getContractFactory("CreditExecutor");
-//     const executor = await CreditExecutor.deploy();
-
-//   	// get account
-//     await executor.deployed();
-//     await executor.setGreeting("Hola, mundo!");
-//     expect(await executor.greet()).to.equal("Hola, mundo!");
-//   });
-// });
 const { ethers } = require("hardhat");
 const abi = [{
             "constant": true,
@@ -237,7 +222,11 @@ const abi = [{
                       "name": "Transfer",
                       "type": "event"
                   }]
+
+
+const daiFaucetAddress = "0x47534DB1A8D9aDAedF61B53A9f864EC3f56c6e21";
 const daiContractAddress = "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa";
+const creditExecutorAddress = "0xf5d30fce6ae1049e6182402e4efbcd522b81715a";
 
 
 describe("DAIFaucet", function() {
@@ -247,9 +236,8 @@ describe("DAIFaucet", function() {
     const [owner] = await ethers.getSigners();
     console.log(owner.address)
 
-    // deploy
+    // TODO: Seperate out into scripts file for DaiFaucet deployment
     // const DAIFaucet = await ethers.getContractFactory("DAIFaucet");
-
     // on kovan
     // const v2RouterUniSwap = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     // const DaiAddress = "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa";
@@ -261,8 +249,8 @@ describe("DAIFaucet", function() {
       // // Acccounts now exposed
       const params = [{
           from: owner.address,
-          to: "0x47534DB1A8D9aDAedF61B53A9f864EC3f56c6e21",
-          value: ethers.utils.parseUnits('0.2', 'ether').toHexString()
+          to: daiFaucetAddress,
+          value: ethers.utils.parseUnits('0.01', 'ether').toHexString()
       }];
 
       console.log(params)
@@ -273,17 +261,6 @@ describe("DAIFaucet", function() {
 
   });
 
-  it.only('gets DAI balance', async () => {
-    const [owner] = await ethers.getSigners();
-
-    // The address from the above deployment example
-    // We connect to the Contract using a Provider, so we will only
-    // have read-only access to the Contract
-    let contract = new ethers.Contract(daiContractAddress, abi, ethers.provider);
-    const balance = await contract.balanceOf(owner.address)
-    console.log(balance.toString())
-
-  })
 
   it('sets greeting deposit', async() => {
     const contract = await ethers.getContractAt("CreditExecutor", '0xf5d30fce6ae1049e6182402e4efbcd522b81715a');
@@ -303,11 +280,22 @@ describe("DAIFaucet", function() {
 
   })
 
-  it.only('sets transaction into the pool', async() => {
+  it.only('gets DAI balance', async () => {
+    const [owner] = await ethers.getSigners();
+
+    // The address from the above deployment example
+    // We connect to the Contract using a Provider, so we will only
+    // have read-only access to the Contract
+    let contract = new ethers.Contract(daiContractAddress, abi, ethers.provider);
+    const balance = await contract.balanceOf(owner.address)
+    console.log(balance.toString())
+
+  })
+
+  it('sets amount of approval into the pool', async() => {
 
     const [owner] = await ethers.getSigners();
 
-    const creditExecutor = await ethers.getContractAt("CreditExecutor", '0xf5d30fce6ae1049e6182402e4efbcd522b81715a');
     let amount = 10;
     let amountToDeposit = parseUnits(amount.toString(), 18)
     // let deposit = await lendingPoolContract.deposit(assetData.tokenAddress, amountToDeposit, address, 0)
@@ -315,29 +303,42 @@ describe("DAIFaucet", function() {
 
     console.log('deposit', amountToDeposit.toString())
     console.log(owner)
-    console.log(ethers.provider)
-    console.log(ethers.Contract)
 
     // var wallet = new Wallet(privateKey, ethers.provider);
 
         // get dai contract
-    let daiContract = new ethers.Contract(daiContractAddress, abi, );
-    let approval = await daiContract.approve("0xf5d30fce6ae1049e6182402e4efbcd522b81715a", amountToApprove)
+    let daiContract = new ethers.Contract(daiContractAddress, abi, owner);
+    let approval = await daiContract.approve(creditExecutorAddress, amountToApprove)
+
     console.log('approval')
     // console.log(approval)
     // console.log(approval.toString())
 
-    // deposit
-    const res = await creditExecutor.depositCollateral('0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa', amountToDeposit, true)
-    console.log(res)
-
-
-    // perform test to see allowance
-    let allowance = await daiContract.allowance(owner.address, "0x9FE532197ad76c5a68961439604C037EB79681F0")
-    console.log(allowance)
+        // perform test to see allowance
+    let allowance = await daiContract.allowance(owner.address, creditExecutorAddress)
+    console.log("allowance")
     console.log(allowance.toString())
+
   })
 
+
+
+
+
+  // TODO: Get this to work
+  it.only('depositCollateral in the pool', async () => {
+    const [owner] = await ethers.getSigners();
+    let amount = 10;
+    let amountToDeposit = parseUnits(amount.toString(), 18)
+    console.log('deposit', amountToDeposit.toString())
+
+    const creditExecutor = await ethers.getContractAt("CreditExecutor", creditExecutorAddress);
+    // deposit
+    const res = await creditExecutor.depositCollateral(daiContractAddress, amountToDeposit, false)
+    console.log(res)
+  })
+
+  
   it.only('gets DAI balance', async () => {
     const [owner] = await ethers.getSigners();
     // We connect to the Contract using a Provider, so we will only

@@ -36,7 +36,7 @@ module.exports = {
       url: `${ALCHEMY_URL}`,
       saveDeployments: true,
       accounts: [`0x${KOVAN_PRIVATE_KEY}`],
-      gas: 6000000,
+      gas: 12499988,
       gasPrice: 1e10,
       networkCheckTimeout: 500000000,
       timeoutBlocks: 200
