@@ -11,5 +11,14 @@
     "ethereum-waffle": "^3.2.1",
     "ethers": "^5.0.26",
     "hardhat": "^2.0.8"
+  },
+  "dependencies": {
+    "@ethersproject/units": "^5.0.9",
+    "@openzeppelin/contracts": "^3.3.0",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0"
+  },
+  "scripts": {
+    "deploy": "npx hardhat run --network kovan ./scripts/deploy.js",
+    "test": "npx hardhat test --network kovan"
   }
 }

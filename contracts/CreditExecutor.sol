@@ -31,6 +31,11 @@ contract CreditExecutor {
         greet = _greeting;
     }
 
+    // for testing purposes
+    function getGreeting() public view returns(string memory greet){
+        return greet;
+    }
+
     /**
      * Deposits collateral into the Aave, to enable credit delegation
      * This would be called by the delegator.

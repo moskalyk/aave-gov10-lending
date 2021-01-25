@@ -34,7 +34,12 @@ module.exports = {
   networks: {
     kovan: {
       url: `${ALCHEMY_URL}`,
-      accounts: [`0x${KOVAN_PRIVATE_KEY}`]
+      saveDeployments: true,
+      accounts: [`0x${KOVAN_PRIVATE_KEY}`],
+      gas: 6000000,
+      gasPrice: 1e10,
+      networkCheckTimeout: 500000000,
+      timeoutBlocks: 200
     },
     local: {
       url: `http://localhost:8545`
