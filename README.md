@@ -1,6 +1,6 @@
 # gov10-aave-lending
 
-Set the .env 
+Set the .env by copying .default.env and setting variables.
 
 can run 
 
