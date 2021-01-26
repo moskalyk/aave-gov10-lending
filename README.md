@@ -4,8 +4,10 @@ Set the .env
 
 can run 
 
-$ npx hardhat test
+$ yarn deploy:kovan
+
+note: the contracts are already on kovan, so no need to deploy.
 
 or
 
-$ npx hardhat run scripts/deploy.js --network kovan
+$ yarn test:kovan
