@@ -15,17 +15,17 @@ async function main() {
   await hre.run('compile');
 
   // We get the contract to deploy
-  const NFTFactory = await ethers.getContractFactory("NFTFactory");
-  const executor = await NFTFactory.deploy();
+  // const NFTFactory = await ethers.getContractFactory("NFTFactory");
+  // const factory = await NFTFactory.deploy();
 
-  console.log("NFTFactory deployed to:", executor.address);
+  // console.log("NFTFactory deployed to:", factory.address);
 
 
-  // const CreditExecutor = await ethers.getContractFactory("CreditExecutor");
-  // const executor = await CreditExecutor.deploy();
+  const CreditExecutor = await ethers.getContractFactory("CreditExecutor");
+  const executor = await CreditExecutor.deploy("0x5a249591A78a01480F4088321156B4a5450D0985");
 
-  // await executor.deployed();
-  // console.log("CreditExecutor deployed to:", executor.address);
+  await executor.deployed();
+  console.log("CreditExecutor deployed to:", executor.address);
   
   
   // Deploying the DAI faucet

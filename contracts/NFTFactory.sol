@@ -16,21 +16,19 @@ contract NFTFactory is ERC721, OracleClient {
 	struct Bio {
 		uint id;
 		uint redeemablePrice;
-		// string type;
+		bytes description;
 	}
 
 	mapping(uint => Land) public land;
 
-	constructor() ERC721("Gov10", "GOV10") public {
-		// console.log(super.getPrice())
-    }
+	constructor() ERC721("Gov10", "GOV10") public {}
 
     // function 
-    function issue(bytes memory data) public {
+    function issue(address owner, bytes memory data) public {
     	// bio NFT to delegator, and land to 
     	uint tokenId = super.totalSupply() + 1;
 
-		super._safeMint(msg.sender, tokenId, data);
+		super._safeMint(owner, tokenId, data);
 
 		// TODO: create struct
     }

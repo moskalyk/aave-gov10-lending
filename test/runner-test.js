@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { parseUnits, formatUnits } = require("@ethersproject/units");
 
 const { ethers } = require("hardhat");
-const abi = [{
+const erc20Abi = [{
             "constant": true,
             "inputs": [],
             "name": "name",
@@ -1602,8 +1602,11 @@ const lendingPoolAbi = [
   ]
 
 const daiFaucetAddress = "0x7CFAb6430acF23F6a45521144bc83Ad5C8c2E2aa";
+
 let daiContractAddress = "0xFf795577d9AC8bD7D90Ee22b6C1703490b6512FD";
-const creditExecutorAddress = "0xBB1E7D823B378675429C66c47E63DD0727CD00d6";
+const aDaiContractAddress = "0x6ddfd6364110e9580292d9ecc745f75dea7e72c8";
+
+const creditExecutorAddress = "0x5e573955221AE2c061C534A20C8F5Ba2A15C23a8";
 const LENDING_POOL_ADDRESS = "0x9FE532197ad76c5a68961439604C037EB79681F0";
 
 describe("DAIFaucet", function() {
@@ -1616,11 +1619,7 @@ describe("DAIFaucet", function() {
       let _reserveTokens = await dataProviderContract.getAllReservesTokens()
       //.getReserveData("0x6B175474E89094C44Da98b954EedeAC495271d0F")
       //makeCall('getAddress', addressProviderContract, ["0x1"])
-
-      console.log(_reserveTokens)
-
       _reserveTokens.forEach((pool) => {
-        console.log(pool)
         if(pool.symbol == 'DAI'){
           daiContractAddress = pool.tokenAddress
           console.log(`setting the dai contract to: ${daiContractAddress}`)
@@ -1709,13 +1708,14 @@ describe("DAIFaucet", function() {
     console.log(_accountData)
   })
 
-  it('gets DAI balance', async () => {
+  // it('gets DAI balance', async () => {
+  it.only('gets DAI balance', async () => {
     const [owner] = await ethers.getSigners();
 
     // The address from the above deployment example
     // We connect to the Contract using a Provider, so we will only
     // have read-only access to the Contract
-    let contract = new ethers.Contract(daiContractAddress, abi, ethers.provider);
+    let contract = new ethers.Contract(daiContractAddress, erc20Abi, ethers.provider);
     const balance = await contract.balanceOf(owner.address)
     console.log(balance.toString())
 
@@ -1730,7 +1730,7 @@ describe("DAIFaucet", function() {
     let amountToApprove = amountToDeposit;
 
     console.log('deposit', amountToDeposit.toString())
-    let daiContract = new ethers.Contract(daiContractAddress, abi, owner);
+    let daiContract = new ethers.Contract(daiContractAddress, erc20Abi, owner);
     let approval = await daiContract.approve(creditExecutorAddress, amountToApprove)
 
     console.log('approval')
@@ -1777,21 +1777,22 @@ describe("DAIFaucet", function() {
     // The address from the above deployment example
     // We connect to the Contract using a Provider, so we will only
     // have read-only access to the Contract
-    let contract = new ethers.Contract(daiContractAddress, abi, ethers.provider);
+    let contract = new ethers.Contract(daiContractAddress, erc20Abi, ethers.provider);
     const balance = await contract.balanceOf(borrower.address)
     console.log(balance.toString())
   })
 
   it('borrows the collateral', async() => {
+
   // it.only('borrows the collateral', async() => {
-      const [owner, borrower] = await ethers.getSigners();
+    const [owner, borrower] = await ethers.getSigners();
 
     console.log(`Owner: ${owner.address}`)
     console.log(`Borrower: ${borrower.address}`)
 
     let amount = 5;
     let amountToBorrow = parseUnits(amount.toString(), 18)
-    console.log('deposit', amountToBorrow.toString())
+    console.log('borrowing', amountToBorrow.toString())
 
 
         // Borrow the relevant amount
@@ -1801,40 +1802,112 @@ describe("DAIFaucet", function() {
     const referralCode = 0;
     const delegatorAddress = creditExecutorAddress;
 
-    const creditExecutor = await ethers.getContractAt("CreditExecutor", creditExecutorAddress, borrower);
+    // const creditExecutor = await ethers.getContractAt("CreditExecutor", creditExecutorAddress, borrower);
 
-    let res = await creditExecutor.borrow(
-                                  assetToBorrow,
-                                  amountToBorrowInWei,
-                                  interestRateMode,
-                                  referralCode,
-                                  owner.address
-                                  // creditExecutor
-                              )
+    let lendingPoolContract = new ethers.Contract(LENDING_POOL_ADDRESS, lendingPoolAbi, borrower);
+
+    let res = await lendingPoolContract.borrow(
+                                                    assetToBorrow,
+                                                    amountToBorrowInWei,
+                                                    interestRateMode,
+                                                    referralCode,
+                                                    creditExecutorAddress
+                                                  )
+
+    // let res = await creditExecutor.borrow(
+    //                               assetToBorrow,
+    //                               amountToBorrowInWei,
+    //                               interestRateMode,
+    //                               referralCode
+    //                               // creditExecutor
+    //                           )
 
     // const creditExecutor = await ethers.getContractAt("CreditExecutor", creditExecutorAddress, borrower);
     // const res = await creditExecutor.withdrawCollateral(daiContractAddress)
     console.log(res)
   });
 
+  it('allows a borrower to repays debt', async() => {
+  // it.only('allows a borrower to repays debt', async() => {
+    const [owner, borrower] = await ethers.getSigners();
+
+    let amount = 5;
+    let amountToApprove = parseUnits(amount.toString(), 18);
+
+    let daiContract = new ethers.Contract(daiContractAddress, erc20Abi, borrower);
+    let res = await daiContract.approve(creditExecutorAddress, amountToApprove)
+    console.log(res)
+  })
+
+    // it('allowance of a borrower', async() => {
+  it.only('allowance of a borrower', async() => {
+    const [owner, borrower] = await ethers.getSigners();
+
+    let daiContract = new ethers.Contract(daiContractAddress, erc20Abi, borrower);
+
+                // perform test to see allowance
+    let allowance = await daiContract.allowance(borrower.address, creditExecutorAddress)
+    console.log("allowance of borrower")
+    console.log(allowance.toString())
+  })
+
+  // it('a borrower repays collateral', async() => {
+
+  it.only('a borrower repays loan', async() => {
+    const [owner, borrower] = await ethers.getSigners();
+
+    console.log(`Owner: ${owner.address}`)
+    console.log(`Borrower: ${borrower.address}`)
+
+    let amount = 2;
+    let assetToRepay = daiContractAddress;
+    let amountToRepay = parseUnits(amount.toString(), 18)
+    console.log('borrow repayment', amountToRepay.toString())
+
+    const creditExecutor = await ethers.getContractAt("CreditExecutor", creditExecutorAddress, borrower);
+
+    let res = await creditExecutor.repayBorrower(
+                              amountToRepay,
+                              assetToRepay
+                          )
+
+    console.log(res)
+
+  })
+
   // it.only(`gets the dai balance from contract ${daiContractAddress}`, async () => {
-  it(`gets the dai balance from contract ${daiContractAddress}`, async () => {
+  // it.only(`gets the dai balance from contract ${daiContractAddress}`, async () => {
+
+  // })
+
+  it.only(`gets the dai balance from contract ${daiContractAddress}`, async () => {
     const [owner, borrower] = await ethers.getSigners();
 
     // The address from the above deployment example
     // We connect to the Contract using a Provider, so we will only
     // have read-only access to the Contract
 
-    let contract = new ethers.Contract(daiContractAddress, abi, ethers.provider);
+    let contract = new ethers.Contract(daiContractAddress, erc20Abi, ethers.provider);
     let balance = await contract.balanceOf(creditExecutorAddress)
 
     console.log(`credit executor: ${balance.toString()}`)
 
     balance = await contract.balanceOf(borrower.address)
-    console.log(`borrower balancer: ${balance.toString()}`)
+    console.log(`borrower ${borrower.address} balance: ${balance.toString()}`)
+
 
     balance = await contract.balanceOf(owner.address)
-    console.log(`owner balancer: ${balance.toString()}`)
+    console.log(`owner ${owner.address} balancer: ${balance.toString()}`)
+
+    console.log('------- a token balances ---------')
+
+    let aContract = new ethers.Contract(aDaiContractAddress, erc20Abi, ethers.provider);
+    balance = await aContract.balanceOf(creditExecutorAddress)
+    console.log(`creditExecutorAddress of ${owner.address} aBalance: ${balance.toString()}`)
+
+  })
+
+  it(`withdraws the collateral balance`, async () => {
 
   })
 

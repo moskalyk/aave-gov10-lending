@@ -3,6 +3,7 @@ pragma solidity 0.7.3;
 
 import { IERC20, IERC721, ILendingPool, IProtocolDataProvider, IStableDebtToken } from './Interfaces.sol';
 import { SafeERC20 } from './Libraries.sol';
+import './NFTFactory.sol';
 
 /**
  * This is a proof of concept starter contract, showing how uncollaterised loans are possible
@@ -21,9 +22,15 @@ contract CreditExecutor {
     address public owner;
     string public greet;
 
-    constructor () public {
+    NFTFactory public nftFactory;
+
+    mapping(address => address) public agreements;
+    mapping(address => uint) public aBalances;
+
+    constructor (address nftFactoryAddress) public {
         owner = msg.sender;
         // pass in nft address
+        nftFactory = NFTFactory(address(nftFactoryAddress));
     }
 
     // for testing purposes
@@ -52,9 +59,14 @@ contract CreditExecutor {
         IERC20(asset).safeApprove(address(lendingPool), amount);
 
         // perform swap on eth to dai
+        aBalances[msg.sender] = aBalances[msg.sender] + amount;
 
         lendingPool.deposit(asset, amount, address(this), 0);
     }
+
+    // function getABalance() public {
+
+    // }
 
     /**
      * Approves the borrower to take an uncollaterised loan
@@ -70,24 +82,15 @@ contract CreditExecutor {
         // take in an array of borrower(s), maybe v1 just be about a single borrower
         // store addresses as data access
 
-
         // mint bio token as confidence
         // prepare 1 nft token to delegator on gov10 (land + bio)
+
+        // agreements[msg.sender] = borrower;
+        // nftFactory.issue(msg.sender)
 
         // repayment terms are set to borrower, price of nft is stated with schedule
 
         IStableDebtToken(stableDebtTokenAddress).approveDelegation(borrower, amount);
-    }
-
-    function borrow(address assetToBorrow, uint256 amountToBorrowInWei, uint256 interestRateMode, uint16 referralCode, address delegatorAddress) public {
-        // contract borrows
-        lendingPool.borrow(assetToBorrow, amountToBorrowInWei, interestRateMode, referralCode, delegatorAddress);
-
-        //TODO: internal accounting of assets
-
-        // borrows the function out
-        IERC20(assetToBorrow).safeApprove(msg.sender, amountToBorrowInWei);
-        IERC20(assetToBorrow).safeTransferFrom(address(this), msg.sender, amountToBorrowInWei);
     }
     
     /**
@@ -100,12 +103,33 @@ contract CreditExecutor {
      * You should keep internal accounting of borrowers, if your contract will have multiple borrowers
      */
     function repayBorrower(uint256 amount, address asset) public {
+        IERC20(asset).transferFrom(msg.sender, address(this), amount);
+        IERC20(asset).approve(address(lendingPool), amount);
+
+        lendingPool.repay(asset, amount, 1, address(this));
+    }   
+
+    /**
+     * Repay an uncollaterised loan
+     * @param amount The amount to repay
+     * @param asset The asset to be repaid
+     * 
+     * User calling this function must have approved this contract with an allowance to transfer the tokens
+     * 
+     * You should keep internal accounting of borrowers, if your contract will have multiple borrowers
+     */
+    function repayBorrowerWithNFT(uint256 amount, address asset) public {
         IERC20(asset).safeTransferFrom(msg.sender, address(this), amount);
         IERC20(asset).safeApprove(address(lendingPool), amount);
 
         // delegatee can pay with bionft token or original swapped funds
+        // swap nft to this contract
+        // get price of the nft from the oracleClient
+        // subtract price of nft from the internal account
+        // swap
+        // 
 
-        lendingPool.repay(asset, amount, 1, address(this));
+        // lendingPool.repay(asset, amount, 1, address(this));
     }
 
     // function repayBorrowerWithBio() public {

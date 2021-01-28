@@ -4,7 +4,7 @@ const { parseUnits, formatUnits } = require("@ethersproject/units");
 
 const { ethers } = require("hardhat");
 
-const nftFactoryAddress = '0xFa6007B2f10552C3e97aECA55E1D04B667EC1a7E'
+const nftFactoryAddress = '0x5a249591A78a01480F4088321156B4a5450D0985'
 let nftFactory;
 describe("NFTFactory", function() {
 
@@ -12,7 +12,8 @@ describe("NFTFactory", function() {
 		nftFactory = await ethers.getContractAt("NFTFactory", nftFactoryAddress);
 	})
 
-	it.only('mints an NFT', async() => {
+	it('mints an NFT', async() => {
+	// it.only('mints an NFT', async() => {
 		const [owner] = await ethers.getSigners();
 
 		const balance = await nftFactory.balanceOf(owner.address)
@@ -21,11 +22,12 @@ describe("NFTFactory", function() {
 		// let contract = new ethers.Contract(contractAddress, abi, ethers.provider);
 		const tokenMetadata = ethers.utils.formatBytes32String("howdie:" + balance.toString())
 
-		const res = await nftFactory.issue(tokenMetadata)
+		const res = await nftFactory.issue(owner.address, tokenMetadata)
 		console.log(res)
 	})
 	
-	it.only('get the balance of the NFT', async() => {
+	it('get the balance of the NFT', async() => {
+	// it.only('get the balance of the NFT', async() => {
 		const [owner] = await ethers.getSigners();
 
 		// get balanceOf
