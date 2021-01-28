@@ -1,11 +1,13 @@
 # gov10-aave-lending
 
-Set the .env 
+Set the .env by copying .default.env and setting variables.
 
 can run 
 
-$ npx hardhat test
+$ yarn deploy:kovan
+
+note: the contracts are already on kovan, so no need to deploy.
 
 or
 
-$ npx hardhat run scripts/deploy.js --network kovan
+$ yarn test:kovan
