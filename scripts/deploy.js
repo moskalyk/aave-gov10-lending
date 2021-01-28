@@ -15,24 +15,30 @@ async function main() {
   await hre.run('compile');
 
   // We get the contract to deploy
-  const CreditExecutor = await ethers.getContractFactory("CreditExecutor");
+  const NFTFactory = await ethers.getContractFactory("NFTFactory");
+  const executor = await NFTFactory.deploy();
+
+  console.log("NFTFactory deployed to:", executor.address);
+
+
+  // const CreditExecutor = await ethers.getContractFactory("CreditExecutor");
+  // const executor = await CreditExecutor.deploy();
+
+  // await executor.deployed();
+  // console.log("CreditExecutor deployed to:", executor.address);
   
-
-  const executor = await CreditExecutor.deploy();
-
-
-  await executor.deployed();
   
-  const DAIFaucet = await ethers.getContractFactory("DAIFaucet");
-  const faucet = await DAIFaucet.deploy(
-    "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-    "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa"
-    );
+  // Deploying the DAI faucet
+  // const DAIFaucet = await ethers.getContractFactory("DAIFaucet");
   
-  await faucet.deployed();
+  // const faucet = await DAIFaucet.deploy(
+  //   "0xFf795577d9AC8bD7D90Ee22b6C1703490b6512FD",
+  //   "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa"
+  //   );
+  
+  // await faucet.deployed();
 
-  console.log("CreditExecutor deployed to:", executor.address);
-  console.log("DAIFaucet deployed to:", faucet.address);
+  // console.log("DAIFaucet deployed to:", faucet.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

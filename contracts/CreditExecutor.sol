@@ -78,6 +78,17 @@ contract CreditExecutor {
 
         IStableDebtToken(stableDebtTokenAddress).approveDelegation(borrower, amount);
     }
+
+    function borrow(address assetToBorrow, uint256 amountToBorrowInWei, uint256 interestRateMode, uint16 referralCode, address delegatorAddress) public {
+        // contract borrows
+        lendingPool.borrow(assetToBorrow, amountToBorrowInWei, interestRateMode, referralCode, delegatorAddress);
+
+        //TODO: internal accounting of assets
+
+        // borrows the function out
+        IERC20(assetToBorrow).safeApprove(msg.sender, amountToBorrowInWei);
+        IERC20(assetToBorrow).safeTransferFrom(address(this), msg.sender, amountToBorrowInWei);
+    }
     
     /**
      * Repay an uncollaterised loan
@@ -114,8 +125,6 @@ contract CreditExecutor {
         uint256 assetBalance = IERC20(aTokenAddress).balanceOf(address(this));
         lendingPool.withdraw(asset, assetBalance, owner);
 
-        // on withdraw of collateral, erc721 land is minted
-
-        // 
+        // on withdraw of collateral, erc721 token is minted
     }
 }

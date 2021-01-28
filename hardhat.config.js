@@ -28,6 +28,7 @@ const ALCHEMY_URL = `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`;
 // go to Account Details > Export Private Key
 // Be aware of NEVER putting real Ether into testing accounts
 const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY || '';
+const KOVAN_PRIVATE_KEY_B = process.env.KOVAN_PRIVATE_KEY_B || '';
 
 module.exports = {
   solidity: "0.7.3",
@@ -35,8 +36,8 @@ module.exports = {
     kovan: {
       url: `${ALCHEMY_URL}`,
       saveDeployments: true,
-      accounts: [`0x${KOVAN_PRIVATE_KEY}`],
-      gas: 12499988,
+      accounts: [`0x${KOVAN_PRIVATE_KEY}`, `0x${KOVAN_PRIVATE_KEY_B}`],
+      gas: 12487794,
       gasPrice: 1e10,
       networkCheckTimeout: 500000000,
       timeoutBlocks: 200
